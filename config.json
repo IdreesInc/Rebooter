@@ -1,0 +1,7 @@
+{
+	"enabled": true,
+	"standard_request_rate": 10000,
+	"disconnected_request_rate": 1000,
+	"max_connection_attempts": 600,
+	"mod_attempts_to_print": 30
+}

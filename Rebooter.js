@@ -1,18 +1,25 @@
 var fs = require("fs");
 var shelljs = require('shelljs');
 var dns = require('dns');
+var intercept = require("intercept-stdout");
 
 var connectionAttempts = 0;
 var config = JSON.parse(fs.readFileSync(__dirname + '/config.json', 'utf8'));
+
+var unhook_intercept = intercept(function(txt) {
+	var time = new Date().toLocaleString().split(", ")[1];
+	return "[" + time + "] (Rebooter)  " + txt;
+});
+
 var callback = function (connected) {
 	if (config.enabled) {
 		if (!connected) {
 			connectionAttempts++;
 			if (connectionAttempts == 1 || connectionAttempts % config.mod_attempts_to_print === 0) {
-				console.log(getTime() + " Error: Unable to connect to the internet. Attempt #" + connectionAttempts + " out of " + config.max_connection_attempts);
+				console.log("Error: Unable to connect to the internet. Attempt #" + connectionAttempts + " out of " + config.max_connection_attempts);
 			}
 			if (connectionAttempts == config.max_connection_attempts - 1) {
-				console.log(getTime() + " Warning: Reboot on next failed connection attempt");
+				console.log("Warning: Reboot on next failed connection attempt");
 			} else if (connectionAttempts == config.max_connection_attempts) {
 				rebootDevice();
 			}
@@ -20,7 +27,7 @@ var callback = function (connected) {
 		} else {
 			if (connectionAttempts > 1) {
 				connectionAttempts = 0;
-				console.log(getTime() + " Crisis averted, internet restored!");
+				console.log("Crisis averted, internet restored!");
 			}
 			setTimeout(function() { checkInternet(callback); }, config.standard_request_rate);
 		}
@@ -29,10 +36,10 @@ var callback = function (connected) {
 
 setTimeout(function() { checkInternet(callback); }, config.standard_request_rate);
 
-console.log(getTime() + " Rebooter program activated!");
+console.log("Rebooter program activated!");
 checkInternet(function (connected) {
 	if (connected) {
-		console.log(getTime() + " Internet currently connected!");
+		console.log("Internet currently connected!");
 	} else {
 		checkInternet(callback);
 	}
@@ -57,7 +64,7 @@ console.log(config);
  * Restarts the device through 'sudo reboot now'.
  */
  function rebootDevice() {
- 	console.log(getTime() + " Rebooting...");
+ 	console.log("Rebooting...");
  	shelljs.exec("sudo reboot now");
  }
 

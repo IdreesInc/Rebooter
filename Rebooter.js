@@ -14,7 +14,6 @@ var callback = function (connected) {
 			if (connectionAttempts == config.max_connection_attempts - 1) {
 				console.log(getTime() + " Warning: Reboot on next failed connection attempt");
 			} else if (connectionAttempts == config.max_connection_attempts) {
-				console.log(getTime() + " Rebooting...");
 				rebootDevice();
 			}
 			setTimeout(function() { checkInternet(callback); }, config.disconnected_request_rate);
@@ -55,15 +54,11 @@ console.log(config);
  }
 
 /**
- * Restarts the device unless debug mode is active.
+ * Restarts the device through 'sudo reboot now'.
  */
  function rebootDevice() {
- 	console.log("Attempting reboot now");
- 	if (!debug) {
- 		shelljs.exec("sudo reboot now");
- 	} else {
- 		shelljs.exec("echo Warning: Debug mode active, reboot repressed");
- 	}
+ 	console.log(getTime() + " Rebooting...");
+ 	shelljs.exec("sudo reboot now");
  }
 
 /**
